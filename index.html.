@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRILEO GROUP Virtual Office</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101827;color:#f1f5f9;font-family:Arial,sans-serif}
+header{padding:22px;background:#172338;border-bottom:1px solid #34445b}
+header h1{margin:0;color:#60a5fa;font-size:24px}
+header p{color:#94a3b8;margin-bottom:0}
+main{padding:18px;max-width:1000px;margin:auto}
+h2{font-size:19px}
+.stats,.departments{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{background:#1e2c42;padding:16px;border:1px solid #35465e;border-radius:12px}
+.number{font-size:25px;font-weight:bold;color:#60a5fa}
+small{color:#aab8ca}
+button{background:#2563eb;color:white;border:0;padding:11px 15px;border-radius:8px;cursor:pointer}
+input,select{padding:12px;background:#111d30;color:white;border:1px solid #40516a;border-radius:8px;width:100%;margin:5px 0}
+.task{padding:13px;background:#1e2c42;border-radius:9px;margin:9px 0;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.task button{padding:7px;font-size:12px}
+.status{color:#86efac;font-size:12px}
+footer{text-align:center;color:#718096;padding:30px}
+@media(min-width:650px){.stats{grid-template-columns:repeat(4,1fr)}.departments{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<h1>PRILEO GROUP</h1>
+<p>AI VIRTUAL OFFICE · Management System</p>
+</header>
+
+<main>
+<h2>Dashboard Kantor</h2>
+<div class="stats">
+<div class="card"><small>Departemen</small><div class="number">4</div></div>
+<div class="card"><small>Divisi</small><div class="number">4</div></div>
+<div class="card"><small>Total Tugas</small><div class="number" id="total">0</div></div>
+<div class="card"><small>Tugas Selesai</small><div class="number" id="done">0</div></div>
+</div>
+
+<h2>Struktur Manajemen</h2>
+<div class="card">
+<h3>PRILEO GROUP</h3>
+<p>President Director: Pimpinan Utama</p>
+<p>Content & Media Manager: REZA</p>
+<p>Head of Content Production: ADI</p>
+<p>Head of Video & Visual: ADAM</p>
+<p>Head of Social Media: BUNGA</p>
+<p>Head of Strategy & Analytics: RIZKY</p>
+</div>
+
+<h2>Departemen</h2>
+<div class="departments">
+<div class="card"><h3>Content Production</h3><small>Head: ADI</small></div>
+<div class="card"><h3>Video & Visual</h3><small>Head: ADAM</small></div>
+<div class="card"><h3>Social Media</h3><small>Head: BUNGA</small></div>
+<div class="card"><h3>Strategy & Analytics</h3><small>Head: RIZKY</small></div>
+</div>
+
+<h2>Task Management</h2>
+<div class="card">
+<input id="taskInput" placeholder="Masukkan tugas kantor...">
+<select id="department">
+<option>Content Production</option>
+<option>Video & Visual</option>
+<option>Social Media</option>
+<option>Strategy & Analytics</option>
+</select>
+<button onclick="addTask()">+ Tambah Tugas</button>
+</div>
+<div id="tasks"></div>
+
+<h2>Aktivitas Kantor</h2>
+<div class="card" id="activity">
+Belum ada aktivitas. Silakan buat tugas pertama.
+</div>
+</main>
+
+<footer>PRILEO GROUP © 2026 · Virtual Office</footer>
+
+<script>
+let tasks=JSON.parse(localStorage.getItem("prileoTasks")||"[]");
+function save(){
+localStorage.setItem("prileoTasks",JSON.stringify(tasks));
+render();
+}
+function addTask(){
+let input=document.getElementById("taskInput");
+if(!input.value.trim())return;
+tasks.push({
+name:input.value.trim(),
+department:document.getElementById("department").value,
+done:false
+});
+input.value="";
+document.getElementById("activity").textContent="Tugas baru berhasil ditambahkan.";
+save();
+}
+function finishTask(i){
+tasks[i].done=!tasks[i].done;
+document.getElementById("activity").textContent="Status tugas diperbarui.";
+save();
+}
+function deleteTask(i){
+tasks.splice(i,1);
+document.getElementById("activity").textContent="Tugas dihapus.";
+save();
+}
+function render(){
+document.getElementById("total").textContent=tasks.length;
+document.getElementById("done").textContent=tasks.filter(t=>t.done).length;
+document.getElementById("tasks").innerHTML=tasks.map((t,i)=>`
+<div class="task">
+<div>
+<strong>${escapeHTML(t.name)}</strong><br>
+<small>${escapeHTML(t.department)}</small><br>
+<span class="status">${t.done?"Selesai":"Belum selesai"}</span>
+</div>
+<div>
+<button onclick="finishTask(${i})">${t.done?"Buka":"Selesai"}</button>
+<button onclick="deleteTask(${i})">Hapus</button>
+</div>
+</div>`).join("");
+}
+function escapeHTML(s){
+return s.replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+})[c]);
+}
+render();
+</script>
+</body>
+</html>
